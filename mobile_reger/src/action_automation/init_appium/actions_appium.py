@@ -10,6 +10,8 @@ from mobile_reger.src.action_automation.init_appium.remote_appium import ServerR
 
 class AppiumActions(ServerRemote):
     def __scroll_to_elem(self, element):
+        """ Simple Scroll to element for Android and IOS """
+
         platform = self.DRIVER.desired_capabilities['platformName'].lower()
         if platform == 'android':
             self.DRIVER.execute_script('mobile: scroll', {'element': element.id})
@@ -17,13 +19,17 @@ class AppiumActions(ServerRemote):
             self.DRIVER.execute_script('mobile: scroll', {'direction': 'toVisible', 'element': element.id})
 
     def __intercepted_click(self, elem_for_click):
+        """ Recurse call this function, if element intercepted """
+
         try:
             elem_for_click.click()
         except ElementClickInterceptedException:
             time.sleep(.5)
             self.__intercepted_click(elem_for_click)
 
-    def _elem_exists(self, value, by=MobileBy.XPATH, wait=120, return_xpath=False, scroll_to=False):
+    def _elem_exists(self, value: str, by=MobileBy.XPATH, wait=120, return_xpath=False, scroll_to=False):
+        """ Check and Scroll to element """
+
         try:
             ignored_exceptions = (NoSuchElementException,)
             wait = WebDriverWait(self.DRIVER, wait, ignored_exceptions=ignored_exceptions)
@@ -39,7 +45,10 @@ class AppiumActions(ServerRemote):
 
         return exist
 
-    def _click_element(self, value, by=MobileBy.XPATH, wait=60, scroll_to=False, intercepted_click=False) -> bool:
+    def _click_element(
+            self, value: str, by=MobileBy.XPATH, wait=60, scroll_to=False, intercepted_click=False, return_xpath=False):
+        """ Wait and Click element """
+
         if scroll_to:
             self._elem_exists(value=value, by=by, wait=wait, scroll_to=True)
 
@@ -50,7 +59,21 @@ class AppiumActions(ServerRemote):
                 self.__intercepted_click(elem_for_click)
             else:
                 elem_for_click.click()
-            return True
+
+            exist = elem_for_click if return_xpath else True
 
         except TimeoutException:
-            return False
+            exist = False
+
+        return exist
+
+    def _send_text(
+            self, value: str, message: str, by=MobileBy.XPATH, wait=60, scroll_to=False, intercepted_click=False):
+        """ Send your message"""
+
+        xpath_elem = self._click_element(
+            by=by, value=value, wait=wait, scroll_to=scroll_to, intercepted_click=intercepted_click
+        )
+
+        xpath_elem.send_keys(str(message))
+

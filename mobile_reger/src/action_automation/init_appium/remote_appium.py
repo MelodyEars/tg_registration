@@ -3,7 +3,6 @@ import unittest
 
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
-from appium.webdriver.common.appiumby import AppiumBy
 from appium.webdriver.common.touch_action import TouchAction
 
 options = UiAutomator2Options()
