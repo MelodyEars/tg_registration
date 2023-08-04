@@ -23,13 +23,15 @@ class InfoNumberPhone(TypedDict):
 
 # ______________________________________________________ API __________________________________________________________
 def buy_new_number() -> InfoNumberPhone:
+    #  TODO call this func, before create vm
+
     service = 'tg'
     logger.info(f'Buying new number for {service}')
 
     info_countries = {
         0: ('Russia', '7', 'ru', 'RU'),
         1: ('Ukraine', '380', 'uk', 'UA'),
-        2: ('Kazakhstan', '7', 'kk', 'KZ'),
+        2: ('Kazakhstan', '77', 'kk', 'KZ'),
         11: ('Kyrgyzstan', '996' 'ky', 'KG'),
         34: ('Estonia', '372', 'et', 'EE'),
         35: ('Azerbaijan', '994', 'az', 'AZ'),
@@ -91,16 +93,25 @@ def _receive_sms(phone_number: str):
     old_messages_amount = _get_amount_sms(phone_number)
 
     try:
-        time_check = 10
+        time_check = 300
         while time_check:
-            logger.info('Waiting for new messages 5 sec...')
-            time.sleep(5)
+            time_check -= 1
+            print(f'Attempt {time_check}')
 
-            actives = sa.getActiveActivations()
-            logger.info(f'actives:  {actives}')
+            try:
+                actives = sa.getActiveActivations()
+                logger.info(f'actives:  {actives}')
 
-            active_list = actives.get('activeActivations', [])
-            logger.debug(active_list)
+                active_list = actives.get('activeActivations', [])
+                logger.debug(active_list)
+
+            except Exception as e:
+                logger.error(f'Error fetching active activations: {e}')
+
+                logger.info('Waiting for new messages 5 sec...')
+                time.sleep(5)
+
+                continue
 
             for active in active_list:
                 logger.info(f'in loop for active: {active}')
@@ -118,11 +129,11 @@ def _receive_sms(phone_number: str):
                                 return messages[-1]
 
             logger.info('No new messages')
-
-            time_check -= 1
-            print(f'Attempt {time_check}')
+            logger.info('Waiting for new messages 5 sec...')
+            time.sleep(5)
         else:
             return False
+
     except KeyError:
         return False
 
@@ -142,9 +153,11 @@ def request_new_sms(activation_id: str):
 
 
 if __name__ == '__main__':
-    print(buy_new_number())
+    # print(buy_new_number())
     #  {'activationId': '1616312782', 'phoneNumber': '37379114625'}
-    # TODO change lang 
-    # x = '37254904809'
-    # print(_receive_sms(x))
+
+    x = '37477168672'
+    print(_receive_sms(x))
     print(get_balance())
+
+

@@ -1,7 +1,7 @@
 import time
 
 from appium.webdriver import WebElement
-from appium.webdriver.common.mobileby import MobileBy
+from appium.webdriver.common.appiumby import AppiumBy
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -31,7 +31,7 @@ class AppiumActions(ServerRemote):
     def _elem_exists(
             self,
             value: str,
-            by=MobileBy.XPATH, wait=120, return_xpath=False, scroll_to=False
+            by=AppiumBy.XPATH, wait=120, return_xpath=False, scroll_to=False
     ) -> bool | WebElement:
 
         """ Check and Scroll to element """
@@ -53,7 +53,7 @@ class AppiumActions(ServerRemote):
 
     def _click_element(
             self, value: str,
-            by=MobileBy.XPATH, wait=60, scroll_to=False, intercepted_click=False, return_xpath=False
+            by=AppiumBy.XPATH, wait=60, scroll_to=False, intercepted_click=False, return_xpath=False
     ) -> bool | WebElement:
 
         """ Wait and Click element """
@@ -78,7 +78,7 @@ class AppiumActions(ServerRemote):
 
     def _send_text(
             self, value: str, message: str,
-            by: MobileBy = MobileBy.XPATH, wait: int = 60, scroll_to: bool = False, intercepted_click: bool = False
+            by: AppiumBy = AppiumBy.XPATH, wait: int = 60, scroll_to: bool = False, intercepted_click: bool = False
     ) -> None:
         """ Send your message"""
 

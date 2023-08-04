@@ -16,7 +16,7 @@ from config import (APP_PAIRS_FILE, APP_VERSIONS_FILE, DEVICES_FILE, FIRSTNAMES_
                     LANG_CODES_FILE, SDKS_FILE, SYSTEM_LANG_CODES_FILE, ACCOUNTS_DIR, API_KEY)
 
 
-
+'37477168672'
 
 # Функция для получения нового номера телефона от SMS-man
 def get_new_phone_number(country):
