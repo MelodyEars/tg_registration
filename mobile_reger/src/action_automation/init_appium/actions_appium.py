@@ -2,11 +2,12 @@ import time
 
 from appium.webdriver import WebElement
 from appium.webdriver.common.appiumby import AppiumBy
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException, \
+    StaleElementReferenceException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from mobile_reger.src.action_automation.init_appium.remote_appium import ServerRemote
+from mobile_reger.src.action_automation.init_appium.init_driver import ServerRemote
 
 
 class AppiumActions(ServerRemote):
@@ -37,9 +38,9 @@ class AppiumActions(ServerRemote):
         """ Check and Scroll to element """
 
         try:
-            ignored_exceptions = (NoSuchElementException,)
+            ignored_exceptions = (NoSuchElementException, StaleElementReferenceException)
             wait = WebDriverWait(self.DRIVER, wait, ignored_exceptions=ignored_exceptions)
-            take_xpath = wait.until(lambda driver: driver.find_element(by, value))
+            take_xpath = wait.until(EC.presence_of_element_located((by, value)))
 
             if scroll_to:
                 self.__scroll_to_elem(take_xpath)

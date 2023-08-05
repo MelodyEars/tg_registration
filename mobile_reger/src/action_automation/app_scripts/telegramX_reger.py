@@ -1,12 +1,20 @@
 import time
+from pathlib import Path
+
+from appium import webdriver
+from appium.options.android import UiAutomator2Options
 
 from loguru import logger
+
 from mobile_reger.src.action_automation.init_appium.UI_inherit_class import UIBaseAct
+from mobile_reger.src.action_automation.init_appium.app_capabilities import TELEGRAM_capabilities
+from mobile_reger.src.action_automation.init_appium.param_virtual_machine import APPIUM_HOST, APPIUM_PORT
 from mobile_reger.src.exceptions.appium_exception import SendPhoneNumberException
 from mobile_reger.src.sms_activate.sms_api import _receive_sms
 
 
 class AutoRegTelegramX(UIBaseAct):
+
     # ____________________________________________________________________________ Support method
     def __btn_right_arrow(self):
         logger.info('click on the right arrow')
@@ -21,6 +29,8 @@ class AutoRegTelegramX(UIBaseAct):
     def startMessaging(self):
         logger.info('prepare click StartMessaging')
         self.wait_loading()
+
+        self.__switch_to_NATIVE_APP_context()
 
         # xpath_btn = '//android.widget.TextView[contains(@resource-id, "org.thunderdog.challegram:id/btn_done")]'
         # self._click_element(xpath_btn)
@@ -98,6 +108,7 @@ class AutoRegTelegramX(UIBaseAct):
     def tg_popups_after_create(self):
         self.wait_loading()
         # TODo add popups
+        self.pop_tg_find_contacts()
 
     def parce_message_code_for_api(self):
         pass

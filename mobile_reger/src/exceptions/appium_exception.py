@@ -1,4 +1,4 @@
-from base_execeptions import TgRegerAppiumException
+from .base_execeptions import TgRegerAppiumException
 
 
 class SendPhoneNumberException(TgRegerAppiumException):

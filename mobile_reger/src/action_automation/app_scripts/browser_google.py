@@ -4,8 +4,9 @@ from mobile_reger.src.action_automation.init_appium.UI_inherit_class import UIBa
 
 
 class BrowserGetInfoAccount(UIBaseAct):
+    # ____________________________________________________________________________ Support method
     def _run_browser(self):
-        self.__switch_to_BROWSER_DRIVER()
+        self.__switch_to_CHROMIUM_context()
         self.DRIVER.get('https://my.telegram.org/')
 
     def _enter_number_phone(self, number_phone):

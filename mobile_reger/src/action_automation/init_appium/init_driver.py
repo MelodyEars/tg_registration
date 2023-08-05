@@ -1,29 +1,23 @@
-import unittest
+from pathlib import Path
 
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
-from appium.webdriver.common.touch_action import TouchAction
-
 from loguru import logger
 
 from mobile_reger.src.action_automation.init_appium.app_capabilities import BROWSER_capabilities, TELEGRAM_capabilities
-
-APPIUM_HOST = '127.0.0.1'
-APPIUM_PORT = 4723
+from mobile_reger.src.action_automation.init_appium.param_virtual_machine import APPIUM_HOST, APPIUM_PORT
 
 
 class DriverDescriptor:
-    def __get__(self, obj, objtype):
+    def __get__(self, obj, objtype) -> webdriver:
         return obj.__get_active_driver()
 
 
-class ServerRemote(unittest.TestCase):
-    def __init__(self, methodName: str = ...):
-        super().__init__(methodName)
-
+class ServerRemote:
+    def __init__(self):
         self.DRIVER = DriverDescriptor()
 
-    def setUp(self) -> None:
+    def __enter__(self):
         # add our capabilities in options
         browser_options = UiAutomator2Options().load_capabilities(BROWSER_capabilities)
         tg_options = UiAutomator2Options().load_capabilities(TELEGRAM_capabilities)
@@ -33,7 +27,23 @@ class ServerRemote(unittest.TestCase):
 
         self.BROWSER_DRIVER = webdriver.Remote(f'http://{APPIUM_HOST}:{APPIUM_PORT}', options=browser_options)
 
-    def tearDown(self) -> None:
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type or exc_val or exc_tb:
+            folder = Path('mistakes')
+            folder.mkdir(exist_ok=True)
+
+            if self.TG_DRIVER:
+                self.TG_DRIVER.get_screenshot_as_file(folder / 'mistake_TG.png')
+            else:
+                logger.error('No active TG Driver')
+
+            if self.BROWSER_DRIVER:
+                self.BROWSER_DRIVER.get_screenshot_as_file(folder / 'mistake_BROWSER.png')
+            else:
+                logger.error('No active Browser Driver')
+
         if self.TG_DRIVER:
             self.TG_DRIVER.quit()
 
@@ -64,6 +74,7 @@ class ServerRemote(unittest.TestCase):
     def __switch_BROWSER_to_NATIVE_APP_context(self) -> webdriver:
         """This bone need for method collection_API_data() in browser_google.py"""
         self.BROWSER_DRIVER.switch_to.context('NATIVE_APP')
+        self.__active_app_BROWSER()
 
     def __active_app_TELEGRAM(self) -> webdriver:
         self.TG_DRIVER.activate_app('org.telegram.messenger')
@@ -71,5 +82,5 @@ class ServerRemote(unittest.TestCase):
     def __active_app_BROWSER(self) -> webdriver:
         self.BROWSER_DRIVER.activate_app('com.android.chrome')
 
-if __name__ == '__main__':
-    unittest.main()
+
+
