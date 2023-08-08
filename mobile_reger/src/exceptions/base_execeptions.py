@@ -14,3 +14,11 @@ class TgRegerAppiumException(ProjectException):
 
     def __str__(self):
         return f'Appium Tg registration -> {self.message}'
+
+
+
+class SmsActivateException(ProjectException):
+    """ This Base Exception for smsActivate """
+
+    def __str__(self):
+        return f'for smsActivate -> {self.message}'

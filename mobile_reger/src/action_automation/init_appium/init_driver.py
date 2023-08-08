@@ -8,24 +8,16 @@ from mobile_reger.src.action_automation.init_appium.app_capabilities import BROW
 from mobile_reger.src.action_automation.init_appium.param_virtual_machine import APPIUM_HOST, APPIUM_PORT
 
 
-class DriverDescriptor:
-    def __get__(self, obj, objtype) -> webdriver:
-        return obj.__get_active_driver()
-
-
 class ServerRemote:
-    def __init__(self):
-        self.DRIVER = DriverDescriptor()
-
     def __enter__(self):
         # add our capabilities in options
         browser_options = UiAutomator2Options().load_capabilities(BROWSER_capabilities)
         tg_options = UiAutomator2Options().load_capabilities(TELEGRAM_capabilities)
 
+        self.BROWSER_DRIVER = webdriver.Remote(f'http://{APPIUM_HOST}:{APPIUM_PORT}', options=browser_options)
+
         self.TG_DRIVER = webdriver.Remote(f'http://{APPIUM_HOST}:{APPIUM_PORT}', options=tg_options)
         # self.TG_actions = TouchAction(self.TG_DRIVER)
-
-        self.BROWSER_DRIVER = webdriver.Remote(f'http://{APPIUM_HOST}:{APPIUM_PORT}', options=browser_options)
 
         return self
 
@@ -63,23 +55,23 @@ class ServerRemote:
 
         raise Exception("Unknown context")
 
-    def __switch_to_NATIVE_APP_context(self) -> webdriver:
+    def _switch_to_NATIVE_APP_context(self) -> webdriver:
         # self.TG_DRIVER.activate_app('org.thunderdog.challegram')
         self.TG_DRIVER.switch_to.context('NATIVE_APP')
 
-    def __switch_to_CHROMIUM_context(self) -> webdriver:
+    def _switch_to_CHROMIUM_context(self) -> webdriver:
         # self.BROWSER_DRIVER.activate_app('com.android.chrome')
         self.BROWSER_DRIVER.switch_to.context('CHROMIUM')
 
-    def __switch_BROWSER_to_NATIVE_APP_context(self) -> webdriver:
+    def _switch_BROWSER_to_NATIVE_APP_context(self) -> webdriver:
         """This bone need for method collection_API_data() in browser_google.py"""
         self.BROWSER_DRIVER.switch_to.context('NATIVE_APP')
-        self.__active_app_BROWSER()
+        self._active_app_BROWSER()
 
-    def __active_app_TELEGRAM(self) -> webdriver:
+    def _active_app_TELEGRAM(self) -> webdriver:
         self.TG_DRIVER.activate_app('org.telegram.messenger')
 
-    def __active_app_BROWSER(self) -> webdriver:
+    def _active_app_BROWSER(self) -> webdriver:
         self.BROWSER_DRIVER.activate_app('com.android.chrome')
 
 

@@ -1,5 +1,6 @@
 import time
 
+from appium import webdriver
 from appium.webdriver import WebElement
 from appium.webdriver.common.appiumby import AppiumBy
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException, \
@@ -11,14 +12,15 @@ from mobile_reger.src.action_automation.init_appium.init_driver import ServerRem
 
 
 class AppiumActions(ServerRemote):
-    def __scroll_to_elem(self, element) -> None:
+
+    def __scroll_to_elem(self, driver: webdriver, element: WebElement) -> None:
         """ Simple Scroll to element for Android and IOS """
 
-        platform = self.DRIVER.desired_capabilities['platformName'].lower()
+        platform = driver.desired_capabilities['platformName'].lower()
         if platform == 'android':
-            self.DRIVER.execute_script('mobile: scroll', {'element': element.id})
+            driver.execute_script('mobile: scroll', {'element': element.id})
         elif platform == 'ios':
-            self.DRIVER.execute_script('mobile: scroll', {'direction': 'toVisible', 'element': element.id})
+            driver.execute_script('mobile: scroll', {'direction': 'toVisible', 'element': element.id})
 
     def __intercepted_click(self, elem_for_click) -> None:
         """ Recurse call this function, if element intercepted """
@@ -29,21 +31,20 @@ class AppiumActions(ServerRemote):
             time.sleep(.5)
             self.__intercepted_click(elem_for_click)
 
-    def _elem_exists(
-            self,
-            value: str,
-            by=AppiumBy.XPATH, wait=120, return_xpath=False, scroll_to=False
-    ) -> bool | WebElement:
+    def _elem_exists(self,
+                     driver: webdriver, value: str,
+                     by=AppiumBy.XPATH, wait=120, return_xpath=False, scroll_to=False
 
+                     ) -> bool | WebElement:
         """ Check and Scroll to element """
 
         try:
             ignored_exceptions = (NoSuchElementException, StaleElementReferenceException)
-            wait = WebDriverWait(self.DRIVER, wait, ignored_exceptions=ignored_exceptions)
+            wait = WebDriverWait(driver, wait, ignored_exceptions=ignored_exceptions)
             take_xpath = wait.until(EC.presence_of_element_located((by, value)))
 
             if scroll_to:
-                self.__scroll_to_elem(take_xpath)
+                self.__scroll_to_elem(driver=driver, element=take_xpath)
 
             exist = take_xpath if return_xpath else True
 
@@ -52,18 +53,19 @@ class AppiumActions(ServerRemote):
 
         return exist
 
-    def _click_element(
-            self, value: str,
-            by=AppiumBy.XPATH, wait=60, scroll_to=False, intercepted_click=False, return_xpath=False
-    ) -> bool | WebElement:
+    def _click_element(self,
+                       driver: webdriver, value: str,
+                       by=AppiumBy.XPATH, wait=60, scroll_to=False, intercepted_click=False, return_xpath=False
+
+                       ) -> bool | WebElement:
 
         """ Wait and Click element """
 
         if scroll_to:
-            self._elem_exists(value=value, by=by, wait=wait, scroll_to=True)
+            self._elem_exists(driver=driver, value=value, by=by, wait=wait, scroll_to=True)
 
         try:
-            wait = WebDriverWait(self.DRIVER, wait)
+            wait = WebDriverWait(driver, wait)
             elem_for_click: WebElement = wait.until(EC.element_to_be_clickable((by, value)))
             if intercepted_click:
                 self.__intercepted_click(elem_for_click)
@@ -77,15 +79,20 @@ class AppiumActions(ServerRemote):
 
         return exist
 
-    def _send_text(
-            self, value: str, message: str,
-            by: AppiumBy = AppiumBy.XPATH, wait: int = 60, scroll_to: bool = False, intercepted_click: bool = False
-    ) -> None:
+    def _send_text(self,
+                   driver: webdriver, value: str, message: str,
+                   by: AppiumBy = AppiumBy.XPATH, wait: int = 60, scroll_to: bool = False,
+                   intercepted_click: bool = False, after_send_tap: bool = False
+                   ) -> None:
         """ Send your message"""
 
         xpath_elem: WebElement = self._click_element(
-            by=by, value=value, wait=wait, scroll_to=scroll_to, intercepted_click=intercepted_click
+            driver=driver, value=value, by=by, wait=wait, scroll_to=scroll_to, intercepted_click=intercepted_click,
+            return_xpath=True
         )
 
         xpath_elem.clear()
         xpath_elem.send_keys(str(message))
+
+        # if after_send_tap:
+        #     xpath_elem.send_keys("\uE007")
