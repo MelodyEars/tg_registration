@@ -118,4 +118,6 @@ class AutoRegTelegramX(UIBaseAct):
         self.__pop_tg_find_contacts()
 
     def parce_message_code_for_api(self):
-        pass
+        self._switch_to_NATIVE_APP_context()
+        self.__wait_tg_loading()
+

@@ -9,7 +9,7 @@ from mobile_reger.src.sms_activate.sms_api import buy_new_number
 
 
 class SequenceOfActions(unittest.TestCase):
-
+    "2e234d5d-4a26-4da2-a1e9-6e92887c61a2"
     # def test_tg_registration(self):
     #     logger.info('Start registration')
     #     with AutoRegTelegramX() as reg_tg:
