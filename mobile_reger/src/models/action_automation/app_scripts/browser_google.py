@@ -1,7 +1,6 @@
-from appium.webdriver import webdriver
 from loguru import logger
 
-from mobile_reger.src.action_automation.init_appium.UI_inherit_class import UIBaseAct
+from mobile_reger.src.models.action_automation.init_appium.UI_inherit_class import UIBaseAct
 
 
 class BrowserGetInfoAccount(UIBaseAct):

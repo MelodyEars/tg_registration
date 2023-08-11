@@ -1,10 +1,11 @@
 import time
 
+import pyperclip
 from loguru import logger
 
-from mobile_reger.src.action_automation.init_appium.UI_inherit_class import UIBaseAct
-from mobile_reger.src.exceptions.appium_exception import SendPhoneNumberException, NoCodeSentException
-from mobile_reger.src.sms_activate.sms_api import _receive_sms
+from mobile_reger.src.models.action_automation.init_appium.UI_inherit_class import UIBaseAct
+from mobile_reger.src.models.exceptions import SendPhoneNumberException, NoCodeSentException
+from mobile_reger.src.models.sms_activate.sms_api import _receive_sms
 
 
 class AutoRegTelegramX(UIBaseAct):
@@ -117,7 +118,41 @@ class AutoRegTelegramX(UIBaseAct):
         self.__pop_terms_of_service()
         self.__pop_tg_find_contacts()
 
-    def parce_message_code_for_api(self):
+    # __________________________________________________________________________ Browser's code for get api
+    def __decoding_text_clipboard(self):
+        try:
+            copied_text = pyperclip.paste()
+            clipboard_code = copied_text.split("\n")[1]
+            return clipboard_code
+
+        except IndexError:
+            logger.error('No text in clipboard')
+            input("What to do? ")
+
+    def parce_message_code_for_api(self) -> str:
+        """
+         This method is for get API data from https://my.telegram.org/
+         the function grub code from telegram's message via copy
+         message's content and then grab them out from buffering memory
+        """
         self._switch_to_NATIVE_APP_context()
         self.__wait_tg_loading()
 
+        # for click by message in telegram's main menu
+        xpath_msg_main_menu = '//android.view.View[@resource-id="org.thunderdog.challegram:id/chat"]'
+        self._click_element(driver=self.TG_DRIVER, value=xpath_msg_main_menu, intercepted_click=True)
+        self.__wait_tg_loading()
+
+        # for click by message's menu
+        xpath_text_msg = '//androidx.recyclerview.widget.RecyclerView[@resource-id="org.thunderdog.challegram:id/msg_list"]//android.view.View'
+        self._click_element(driver=self.TG_DRIVER, value=xpath_text_msg)
+        self.__wait_tg_loading()
+
+        # copy message
+        xpath_screen = '/hierarchy/android.widget.FrameLayout'
+        self._action_touch_by_coord(driver=self.TG_DRIVER, x=343, y=2772, xpath_value=xpath_screen)
+
+        # decoding text from clipboard
+        code = self.__decoding_text_clipboard()
+
+        return code

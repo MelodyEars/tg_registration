@@ -2,12 +2,11 @@ import random
 import time
 from typing import TypedDict
 
-import requests
 from loguru import logger
 from smsactivate.api import SMSActivateAPI
 
 from SETTINGS import API_KEY
-from mobile_reger.src.exceptions.smsActivate_exceptions import NoCodeSentException
+from mobile_reger.src.models.exceptions import NoCodeSentException
 
 sa = SMSActivateAPI(API_KEY)
 
@@ -204,9 +203,9 @@ def request_new_sms(activation_id: str):
 
 
 if __name__ == '__main__':
-    # print(buy_new_number())
+    print(buy_new_number())
     #  {'activationId': '1616312782', 'phoneNumber': '37379114625'}
 
-    x = '37477168672'
-    print(_receive_sms(x))
+    # x = '37477168672'
+    # print(_receive_sms(x))
     print(get_balance())

@@ -1,6 +1,9 @@
-code_country_phone_number = '7'
+import pyperclip
 
-number = {'activationId': '1612632906', 'phoneNumber': '79776539820'}
+copied_text = pyperclip.paste()
+try:
+    print(copied_text.split("\n")[1])
+except IndexError:
+    pass
 
-phone_number = number['phoneNumber'][len(code_country_phone_number):]
-print(phone_number)
+

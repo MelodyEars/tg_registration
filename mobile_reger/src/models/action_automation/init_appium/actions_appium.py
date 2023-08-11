@@ -3,12 +3,14 @@ import time
 from appium import webdriver
 from appium.webdriver import WebElement
 from appium.webdriver.common.appiumby import AppiumBy
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException, \
-    StaleElementReferenceException
+from appium.webdriver.common.touch_action import TouchAction
+
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException, \
+    StaleElementReferenceException
 
-from mobile_reger.src.action_automation.init_appium.init_driver import ServerRemote
+from mobile_reger.src.models.action_automation.init_appium.init_driver import ServerRemote
 
 
 class AppiumActions(ServerRemote):
@@ -96,3 +98,13 @@ class AppiumActions(ServerRemote):
 
         # if after_send_tap:
         #     xpath_elem.send_keys("\uE007")
+
+    def _action_touch_by_coord(self,
+                               driver: webdriver,
+                               xpath_value: str,
+                               x: int, y: int,
+                               by: AppiumBy = AppiumBy.XPATH, wait: int = 60, scroll_to: bool = False):
+
+        elem = self._elem_exists(driver=driver, value=xpath_value, by=by, wait=wait, scroll_to=scroll_to, return_xpath=True)
+        act = TouchAction()
+        act.press(elem).move_to(x=x, y=y).release()

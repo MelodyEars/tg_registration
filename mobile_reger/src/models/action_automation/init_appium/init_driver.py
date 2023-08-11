@@ -4,19 +4,19 @@ from appium import webdriver
 from appium.options.android import UiAutomator2Options
 from loguru import logger
 
-from mobile_reger.src.action_automation.init_appium.app_capabilities import BROWSER_capabilities, TELEGRAM_capabilities
-from mobile_reger.src.action_automation.init_appium.param_virtual_machine import APPIUM_HOST, APPIUM_PORT
+from mobile_reger.src.models.action_automation.init_appium.app_capabilities import BROWSER_capabilities
+from mobile_reger.src.models.action_automation.init_appium.param_virtual_machine import APPIUM_HOST, APPIUM_PORT
 
 
 class ServerRemote:
     def __enter__(self):
         # add our capabilities in options
         browser_options = UiAutomator2Options().load_capabilities(BROWSER_capabilities)
-        tg_options = UiAutomator2Options().load_capabilities(TELEGRAM_capabilities)
+        # tg_options = UiAutomator2Options().load_capabilities(TELEGRAM_capabilities)
 
         self.BROWSER_DRIVER = webdriver.Remote(f'http://{APPIUM_HOST}:{APPIUM_PORT}', options=browser_options)
-
-        self.TG_DRIVER = webdriver.Remote(f'http://{APPIUM_HOST}:{APPIUM_PORT}', options=tg_options)
+        self.TG_DRIVER = None
+        # self.TG_DRIVER = webdriver.Remote(f'http://{APPIUM_HOST}:{APPIUM_PORT}', options=tg_options)
         # self.TG_actions = TouchAction(self.TG_DRIVER)
 
         return self
