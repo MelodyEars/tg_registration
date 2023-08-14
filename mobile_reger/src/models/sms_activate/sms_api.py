@@ -6,7 +6,7 @@ from loguru import logger
 from smsactivate.api import SMSActivateAPI
 
 from SETTINGS import API_KEY
-from mobile_reger.src.models.exceptions import NoCodeSentException
+from mobile_reger.src.models.exceptions.smsActivate_exceptions import NoCodeSentException
 
 sa = SMSActivateAPI(API_KEY)
 
