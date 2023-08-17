@@ -1,0 +1,3 @@
+from mobile_reger.src.models.action_automation.app_scripts import AutoRegTelegramX
+
+AutoRegTelegramX

@@ -24,5 +24,11 @@ def convert_tgnet_to_session(tgnet_path) -> None:
 
     tgdata = buffer.get_tg_android_session()
     valid_session = tgdata.datacenters[tgdata.headers.currentDatacenterId-1]
-    print('auth key:', valid_session.auth.authKeyPerm)
-    print('telethon string session:', valid_session.telethon_string_session)
+    # print('auth key:', valid_session.auth.authKeyPerm)
+    # print('telethon string session:', valid_session.telethon_string_session)
+    print(valid_session)
+
+
+if __name__ == '__main__':
+    file = r'C:\Users\King\PycharmProjects\tg_registration\mobile_reger\output_files\tgnets\380500555555.dat'
+    convert_tgnet_to_session(file)

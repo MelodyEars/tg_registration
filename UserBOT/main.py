@@ -124,7 +124,7 @@ def request_new_sms(activation_id: str):
 # Функция для получения нового номера телефона от SMS-man
 # def get_new_phone_number(country, service):
 #     # url = f'http://api.sms-man.ru/control/get-number?token={api_key}&country_id={country}&application_id=3'
-#     url = f'https://sms-activate.org/stubs/handler_api.php?api_key=${API_KEY}&action=getNumberV2&service=${service}&forward=$forward&operator=$operator&ref=$ref&country=${country}&phoneException=$phoneException&maxPrice=maxPrice&verification=$verification'
+#     url = f'https://sms-activate.org/stubs/handler_api.php?api_key=${SMSACTIVATE_API_KEY}&action=getNumberV2&service=${service}&forward=$forward&operator=$operator&ref=$ref&country=${country}&phoneException=$phoneException&maxPrice=maxPrice&verification=$verification'
 #
 #     response = requests.get(url)
 #

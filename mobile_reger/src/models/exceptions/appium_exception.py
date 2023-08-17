@@ -10,3 +10,7 @@ class SendPhoneNumberException(TgRegerAppiumException):
 
 class NoCodeSentException(TgRegerAppiumException):
     """Telegram not send code to smsActivate"""
+
+
+class BannedPhoneNumberException(TgRegerAppiumException):
+    """This phone number is banned."""

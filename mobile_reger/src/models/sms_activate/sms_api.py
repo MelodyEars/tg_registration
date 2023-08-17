@@ -5,10 +5,10 @@ from typing import TypedDict
 from loguru import logger
 from smsactivate.api import SMSActivateAPI
 
-from SETTINGS import API_KEY
+from SETTINGS import SMSACTIVATE_API_KEY
 from mobile_reger.src.models.exceptions.smsActivate_exceptions import NoCodeSentException
 
-sa = SMSActivateAPI(API_KEY)
+sa = SMSActivateAPI(SMSACTIVATE_API_KEY)
 
 
 # ____________________________________________________ TYPING _________________________________________________________
@@ -80,65 +80,6 @@ def cancel_number(activation_id: str) -> bool:
     return False
 
 
-# def _get_amount_sms(phone_number: str) -> int:
-#     try:
-#         for active in sa.getActiveActivations()['activeActivations']:
-#             if active['phoneNumber'] == phone_number:
-#                 return len(active['smsText'])
-#     except Exception as err:
-#         logger.error(err)
-#         return 0
-#
-#
-# def _receive_sms(phone_number: str):
-#     old_messages_amount = _get_amount_sms(phone_number)
-#
-#     try:
-#         time_check = 300
-#         while time_check:
-#             time_check -= 1
-#             print(f'Attempt {time_check}')
-#
-#             try:
-#                 actives = sa.getActiveActivations()
-#                 logger.info(f'actives:  {actives}')
-#
-#                 active_list = actives.get('activeActivations', [])
-#                 logger.debug(active_list)
-#
-#             except Exception as e:
-#                 logger.error(f'Error fetching active activations: {e}')
-#
-#                 logger.info('Waiting for new messages 5 sec...')
-#                 time.sleep(5)
-#
-#                 continue
-#
-#             for active in active_list:
-#                 logger.info(f'in loop for active: {active}')
-#
-#                 if phone_number == active.get('phoneNumber'):
-#                     messages = active.get('smsText', [])
-#                     logger.info(f'messages: {messages}')
-#                     if messages:
-#                         if old_messages_amount == 0:
-#                             logger.warning(f'New message: {messages[0]}')
-#                             return messages[0]
-#                         elif old_messages_amount > 1:
-#                             if len(messages) > old_messages_amount:
-#                                 logger.warning(messages[-1])
-#                                 return messages[-1]
-#
-#             logger.info('No new messages')
-#             logger.info('Waiting for new messages 5 sec...')
-#             time.sleep(5)
-#         else:
-#             return False
-#
-#     except KeyError:
-#         return False
-
-
 def check_status(activation_id: str, phone_number: str) -> tuple[bool, bool]:
     time_check = 20
 
@@ -168,21 +109,11 @@ def check_status(activation_id: str, phone_number: str) -> tuple[bool, bool]:
     return False, False
 
 
-def _receive_sms(activation_id: str, phone_number: str) -> str | bool:
+def receive_sms(activation_id: str, phone_number: str) -> str | bool:
     status_ok, code = check_status(activation_id=activation_id, phone_number=phone_number)
 
     if status_ok == 'STATUS_OK':
         return code
-    #     try:
-    #         response = requests.get(
-    #             'https://sms-activate.org/stubs/handler_api.php?api_key=' + API_KEY + '&action=getActiveActivations&id=' + activation_id)
-    #         content = response.json()
-    #         code = content[activation_id]['code']
-    #         logger.debug(f"phone_number: {phone_number}, code: {code}")
-    #         return code
-    #     except Exception as e:
-    #         logger.error(f'Error fetching active activations: {e}')
-
     else:
         return False
 
