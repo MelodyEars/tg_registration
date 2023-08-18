@@ -16,16 +16,16 @@ Code https://github.com/batreller/telegram_android_session_converter
 from mobile_reger.src.models.decode_tgnet_dat.telegram_android_session_converter.BufferWrapper import BufferWrapper
 
 
-def convert_tgnet_to_session(tgnet_path) -> None:
+def convert_tgnet_to_session(tgnet_path: str) -> None:
     # tgnet_path = 'tgnets/tgnet.dat'
 
-    with open(str(tgnet_path), 'rb') as f:
+    with open(tgnet_path, 'rb') as f:
         buffer = BufferWrapper(f.read())
 
     tgdata = buffer.get_tg_android_session()
     valid_session = tgdata.datacenters[tgdata.headers.currentDatacenterId-1]
-    # print('auth key:', valid_session.auth.authKeyPerm)
-    # print('telethon string session:', valid_session.telethon_string_session)
+    print('auth key:', valid_session.auth.authKeyPerm)
+    print('telethon string session:', valid_session.telethon_string_session)
     print(valid_session)
 
 

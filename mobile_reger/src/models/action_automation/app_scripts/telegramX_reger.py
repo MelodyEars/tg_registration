@@ -7,7 +7,7 @@ from mobile_reger.src.models.action_automation.init_appium.UI_inherit_class impo
 from mobile_reger.src.models.exceptions.appium_exception import SendPhoneNumberException, NoCodeSentException, \
     BannedPhoneNumberException
 
-from mobile_reger.src.models.sms_activate.sms_api import receive_sms
+from mobile_reger.src.models.sms_activate.sms_api import receive_sms, InfoNumberPhone
 
 
 class AutoRegTelegramX(UIBaseAct):
@@ -68,19 +68,24 @@ class AutoRegTelegramX(UIBaseAct):
         else:
             logger.critical('Not Click on popups "to make and manage phone calls"')
 
-    def enterPhoneNumbers(self, dict_info_PhoneNumber: dict = None, second_try: bool = False):
+    def enterPhoneNumbers(self, dict_info_PhoneNumber: InfoNumberPhone = None):
         logger.info("Enter number of phone")
 
         xpath_popup_confirm_num_phone = '//android.widget.FrameLayout[@resource-id="android:id/content"]'
-        if second_try or self._elem_exists(value=xpath_popup_confirm_num_phone, wait=1):
+        if (not dict_info_PhoneNumber) or self._elem_exists(value=xpath_popup_confirm_num_phone, wait=1):
             logger.info('Popups about "to make and manage phone calls"')
 
-            if not second_try:
+            if dict_info_PhoneNumber:
                 self.__btn_pop_continue()
                 self.__popups_manage_phone_calls()
 
                 self.phone_number = dict_info_PhoneNumber["code_country"] + dict_info_PhoneNumber["phone_number"]
-                self.activation_id = dict_info_PhoneNumber["activation_id"]
+                print("Number phone: ", self.phone_number)
+                self.activation_id = dict_info_PhoneNumber["activationId"]
+
+            if not dict_info_PhoneNumber:
+                xpath_body_number = '//android.widget.EditText[@content-desc="Phone number"]'
+                self._elem_exists(value=xpath_body_number, return_xpath=True).clear()
 
             # Send Country code
             xpath_code_country = '//android.widget.EditText[@content-desc="Country code"]'
@@ -89,41 +94,53 @@ class AutoRegTelegramX(UIBaseAct):
             logger.info("Successfully sent a number of phone")
 
             self.__btn_right_arrow()
-            if not second_try:
-                # popups
-                """Is this the correct number?"""
-                self.__btn_right_arrow()  # yes
 
-                # poppups message
-                """
-                Please allow Telegram to receive calls and read the call log
-                so that we can automatically enter your code for you.
-                """
-                self.__btn_pop_continue()
-                # again same question about "to make and manage phone calls"
-                self.__popups_manage_phone_calls()
-                self.__popups_2_manage_phone_calls()
+            # popups
+            """Is this the correct number?"""
+            self.__btn_right_arrow()  # yes (the same xpath)
 
-                # popups check "This phone number is banned."
-                xpath_ban = '//android.widget.TextView[@text="This phone number is banned."]'
-                if self._elem_exists(value=xpath_ban, wait=3):
-                    logger.error('This phone number is banned.')
-                    raise BannedPhoneNumberException(f'This phone {self.phone_number} number is banned.')
+            # popups message
+            """
+            Please allow Telegram to receive calls and read the call log
+            so that we can automatically enter your code for you.
+            """
+            self.__btn_pop_continue()
+
+            # again same question about "to make and manage phone calls"
+            self.__popups_manage_phone_calls()
+            self.__popups_2_manage_phone_calls()
+
+            # popups check "This phone number is banned."
+            xpath_ban = '//android.widget.TextView[@text="This phone number is banned."]'
+            if self._elem_exists(value=xpath_ban, wait=5):
+                logger.error('This phone number is banned.')
+                raise BannedPhoneNumberException(f'This phone {self.phone_number} number is banned.')
+            else:
+                logger.warning('This phone number is not banned.')
 
             if self._elem_exists(value=xpath_code_country, wait=1):
                 logger.critical('Stayed on the same web page')
-                raise SendPhoneNumberException(f'This phone number {self.phone_number} is banned.')
+                raise
 
         else:
             logger.critical("No popup, more likely, no pass first page")
             self.startMessaging()
-
-            return self.enterPhoneNumbers(second_try=True)
+            self.enterPhoneNumbers()
 
     # _____________________________________________________________ 3 page
+    def __is_already_registered(self):
+        xpath_btn_send_sms = '//android.widget.TextView[@text="Tap to get a code via SMS"]'
+        if self._click_element(value=xpath_btn_send_sms, wait=1):
+            logger.warning(f"{self.phone_number} is already registered")
+
+            xpath_error = '//android.widget.TextView[@text="An internal error occurred. Please try again later."]'
+            if self._elem_exists(value=xpath_error, wait=5):
+                raise SendPhoneNumberException(f'This phone {self.phone_number} is not for attendance.')
+
     def sendCodeToTg(self,  second_try: bool = False):
         logger.info("Enter number of phone")
         self.__wait_tg_loading()
+        self.__is_already_registered()
 
         xpath_field = '(//android.widget.LinearLayout/android.widget.LinearLayout/android.widget.EditText)[1]'
 
@@ -144,7 +161,7 @@ class AutoRegTelegramX(UIBaseAct):
                 xpath_edit_num = '//android.widget.TextView[@text="Edit number"]'
                 self._click_element(value=xpath_edit_num)
                 # than we're arraying to page 2
-                self.enterPhoneNumbers(second_try=True)
+                self.enterPhoneNumbers()
                 self.sendCodeToTg(second_try=True)
             else:
                 raise NoCodeSentException('Telegram did not send the code to the sms')

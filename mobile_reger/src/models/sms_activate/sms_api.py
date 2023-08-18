@@ -1,3 +1,4 @@
+
 import random
 import time
 from typing import TypedDict
@@ -41,7 +42,7 @@ def buy_new_number() -> InfoNumberPhone:
     }
 
     available_countries = list(info_countries.keys())
-    logger.info(available_countries)
+    logger.info(f"It's available countries: {available_countries}")
 
     while available_countries:
         logger.debug(available_countries)
@@ -58,10 +59,8 @@ def buy_new_number() -> InfoNumberPhone:
 
         country_name, code_country_phone_number, lang, abbreviated_country = info_countries[api_code_country]
 
-        phone_number = str(number['phoneNumber'])[len(code_country_phone_number):]
-
         return {
-            'phone_number': phone_number,
+            'phone_number':  str(number['phoneNumber'])[len(code_country_phone_number):],
             'activationId': str(number['activationId']),
             'country_name': country_name,
             'code_country': code_country_phone_number,
@@ -131,6 +130,10 @@ def request_new_sms(activation_id: str):
     if response == "ACCESS_CANCEL":
         return True
     return False
+
+
+# ________________________________________________________________________________  EXPORT
+__all__ = ["buy_new_number", "receive_sms", "get_balance", "InfoNumberPhone"]
 
 
 if __name__ == '__main__':
