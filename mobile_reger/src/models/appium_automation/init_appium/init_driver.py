@@ -4,8 +4,8 @@ from appium import webdriver
 from appium.options.android import UiAutomator2Options
 from loguru import logger
 
-from mobile_reger.src.models.action_automation.init_appium.app_capabilities import TELEGRAM_capabilities
-from mobile_reger.src.models.action_automation.init_appium.param_virtual_machine import APPIUM_HOST, APPIUM_PORT
+from mobile_reger.src.models.appium_automation.init_appium.app_capabilities import TELEGRAM_capabilities
+from mobile_reger.src.models.appium_automation.init_appium.param_virtual_machine import APPIUM_HOST, APPIUM_PORT
 
 
 class ServerRemote:

@@ -2,7 +2,7 @@ from loguru import logger
 
 from appium import webdriver
 
-from mobile_reger.src.models.action_automation.init_appium.actions_appium import AppiumActions
+from mobile_reger.src.models.appium_automation.init_appium.actions_appium import AppiumActions
 
 
 class UIBaseAct(AppiumActions):

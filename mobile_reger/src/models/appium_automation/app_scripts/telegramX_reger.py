@@ -3,7 +3,7 @@ import base64
 from loguru import logger
 
 from SETTINGS import BASE_ROOT
-from mobile_reger.src.models.action_automation.init_appium.UI_inherit_class import UIBaseAct
+from mobile_reger.src.models.appium_automation.init_appium.UI_inherit_class import UIBaseAct
 from mobile_reger.src.models.exceptions.appium_exception import SendPhoneNumberException, NoCodeSentException, \
     BannedPhoneNumberException
 

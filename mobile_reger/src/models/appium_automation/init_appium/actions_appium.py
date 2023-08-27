@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException, \
     StaleElementReferenceException
 
-from mobile_reger.src.models.action_automation.init_appium.init_driver import ServerRemote
+from mobile_reger.src.models.appium_automation.init_appium.init_driver import ServerRemote
 
 
 class AppiumActions(ServerRemote):

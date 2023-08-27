@@ -1,57 +1,159 @@
+import os
 import subprocess
-import sys
 import time
-from appium import webdriver
-from appium.options.android import UiAutomator2Options
-from appium.webdriver.appium_service import AppiumService
+
 from loguru import logger
 
-# Шлях до LDPlayer
-ldplayer_path = r'C:\LDPlayer\LDPlayer9\LDPlayer.exe'
+ldconsole = r'C:\LDPlayer\LDPlayer9\ldconsole.exe'
+dnconsole = r'C:\LDPlayer\LDPlayer9\dnconsole.exe'
+dnplayer = r'C:\LDPlayer\LDPlayer9\dnplayer.exe'
 
-# Запуск віртуальної машини
-vm_name = 'TestVM'
-ram = 2048
-cpu_cores = 2
 
-logger.info("Hospodi Boje pomoji")
-subprocess.run([ldplayer_path, 'create', f'--name {vm_name}', f'--ram {ram}', f'--cpu {cpu_cores}'])
-time.sleep(10)  # Зачекайте деякий час для завершення старту віртуальної машини
-logger.info("Uf it's impressive")
-# APPIUM_HOST та APPIUM_PORT
-APPIUM_PORT = 4723  # Порт, на якому працюватиме Appium сервер
-APPIUM_HOST = '127.0.0.1'
+def _cmd_exec(cmd):
+    result = subprocess.run([ldconsole, cmd], capture_output=True, text=True)
+    return result.stdout
 
-# Підключення до Appium сервера
-service = AppiumService()
-service.start(args=['--address', APPIUM_HOST, '-p', str(APPIUM_PORT)], timeout_ms=20000)
-logger.info("Appium started")
 
-# Налаштування capabilities для підключення до віртуальної машини
-TELEGRAM_capabilities: dict = {
-    "platformName": "Android",
-    "appium:automationName": "uiautomator2",
-    "appium:language": "en",
-    "appium:locale": "US",
-    "appium:app": r"C:\Users\King\PycharmProjects\tg_registration\mobile_reger\apps_and_drivers\apk\telegram-9-7-6.apk",
-    "appium:uiautomator2ServerInstallTimeout": 120000,
-    "appium:adbExecTimeout": 120000,
-}
+def execute_command(cmd: str, run_and_forgate=False):
+    if run_and_forgate:
+        os.system(dnconsole + " " + cmd)
+    else:
+        out = _cmd_exec(cmd)
+        print(out)
+        return out
 
-logger.debug("init driver")
-# Створення підключення до додатку на віртуальній машині
-tg_options = UiAutomator2Options().load_capabilities(TELEGRAM_capabilities)
-driver = webdriver.Remote(f'http://{APPIUM_HOST}:{APPIUM_PORT}/wd/hub', options=tg_options)
 
-# Ваші тестові дії тут
-input("nu sho? ")
-# Закриття підключення до додатку та віртуальної машини
+def execute_cmd_for_result(path_exe: str, cmd: str, timeout=10000, retry=2):
+    try:
+        process = subprocess.Popen([path_exe, cmd],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   stdin=subprocess.PIPE,
+                                   shell=True,
+                                   text=True)
 
-logger.info("Driver stopped")
-driver.quit()
-logger.info("Appium stopped")
-service.stop()  # Зупинка Appium сервера
-logger.info("turn off LDPlayer")
-subprocess.run([ldplayer_path, 'kill', f'--name {vm_name}'])  # Зупинка віртуальної машини
-logger.info("Successfully turn off LDPlayer")
+        while retry >= 0:
+            retry -= 1
+            process.poll()
 
+            if process.returncode is None:
+                process.kill()
+            else:
+                break
+
+        text = process.communicate(timeout=timeout)[0]
+        result = text
+
+    except Exception as e:
+        logger.error(e)
+        result = None
+
+    return result
+
+
+class LDPlayer:
+
+    def __init__(self, name):
+        self.name = name
+
+    def open(self):
+        logger.info(f"Opening LDPlayer")
+        cmd = f"launch --name {self.name}"
+        execute_command(cmd, run_and_forgate=True)
+
+        logger.debug("isrunning")
+        cmd = f"isrunning --name {self.name}"
+
+        execute_command(cmd)
+
+    def create(self):
+        logger.info(f"Creating LDPlayer")
+        cmd = f"add --name {self.name}"
+        execute_command(cmd, run_and_forgate=True)
+
+    # def watch_list(self):
+        # logger.info(f"runninglist")
+        # cmd = f"runninglist"
+        # execute_command(cmd, run_and_forgate=True)
+        #
+        # logger.info(f"list")
+        # cmd = f"list"
+        # execute_command(cmd)
+
+    def close_vm(self):
+        logger.info(f"Closing LDPlayer")
+        cmd = f"quit --name {self.name}"
+        execute_command(cmd, run_and_forgate=True)
+
+    def remove_vm(self):
+        logger.info(f"Remove VM {self.name}")
+        cmd = f"remove --name {self.name}"
+        execute_command(cmd, run_and_forgate=True)
+
+    def list_instances(self):
+        cmd = ["list2"]
+        result = subprocess.run([dnconsole] + cmd, capture_output=True, text=True)
+        instances = [line.split(",")[1] for line in result.stdout.splitlines()[1:] if line]
+        logger.debug(f"list_instances output: {result.stdout}")  # debug print
+        logger.debug(f"list_instances output: {instances}")
+        return instances
+
+    def get_all_instances_status(self):
+        name = ''
+
+        cmd = ['list2']
+        result = subprocess.run([dnconsole] + cmd, capture_output=True, text=True)
+        instances = {}
+        for line in result.stdout.splitlines():
+            data = line.split(',')
+            if len(data) >= 6:
+                name = data[1].strip()
+                started = data[4].strip()
+                if started == '1':
+                    status = 'running'
+                else:
+                    status = 'stopped'
+            else:
+                status = 'unknown'
+            instances[name] = status
+
+        logger.debug(f"list_instances output: {instances}")
+        return instances
+
+    def print_instance_table(self, instance_statuses, status_filter=None):
+        print("\nInstance Dashboard:")
+        print("ID".ljust(5), "Instance Name".ljust(30), "Status")
+        running_instances = []
+        stopped_instances = []
+        unknown_instances = []
+        for instance, status in instance_statuses.items():
+            if status == "running":
+                running_instances.append(instance)
+            elif status == "stopped":
+                stopped_instances.append(instance)
+            else:
+                unknown_instances.append(instance)
+        if status_filter == "running":
+            instances = running_instances
+        elif status_filter == "stopped":
+            instances = stopped_instances
+        else:
+            instances = running_instances + stopped_instances + unknown_instances
+        for idx, instance in enumerate(instances, start=1):
+            status = instance_statuses[instance]
+            print(str(idx).ljust(5), instance.ljust(30), status)
+        print("\nSummary:")
+        print(f"{len(running_instances)} instances running")
+        print(f"{len(stopped_instances)} instances stopped")
+        print(f"{len(unknown_instances)} instances in an unknown state")
+
+
+if __name__ == '__main__':
+    ld = LDPlayer("Cucaracha")
+    ld.open()
+    time.sleep(10)
+    logger.debug("IES")
+    ld.list_instances()
+    instances = ld.get_all_instances_status()
+    ld.print_instance_table(instances)
+    ld.close_vm()

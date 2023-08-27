@@ -1,6 +1,6 @@
 from loguru import logger
 
-from mobile_reger.src.models.action_automation.app_scripts import AutoRegTelegramX
+from mobile_reger.src.models.appium_automation.app_scripts import AutoRegTelegramX
 from mobile_reger.src.models.personality_generator import gen_personality
 from mobile_reger.src.models.sms_activate import buy_new_number
 
