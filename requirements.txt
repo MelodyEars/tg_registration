@@ -1,0 +1,11 @@
+Appium_Python_Client==2.11.1
+Appium_Python_Client==2.11.1
+config==0.5.1
+Faker==19.3.0
+loguru==0.7.0
+pynput==1.7.6
+pyTelegramBotAPI==4.13.0
+Requests==2.31.0
+selenium==4.11.2
+smsactivate==1.5
+telethon==1.29.3
