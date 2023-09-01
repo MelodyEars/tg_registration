@@ -4,6 +4,7 @@ import subprocess
 
 from loguru import logger
 
+from SETTINGS import MEMORY_VM, NO_WINDOW_VM
 from mobile_reger.src.models.vm_manager.pyavd import pyavd
 
 # emulator_path = r'C:\Users\King\AppData\Local\Android\Sdk\tools\emulator.exe'
@@ -28,15 +29,13 @@ proxy = '-http-proxy ' + 'username:password@server:port'
 
 # delete_cmd = f'{avdmanager} delete avd -n {name_avd}'
 
-memory = '2048'
-no_window = False  # a window appeared
 
 
 @contextlib.contextmanager
 def vm_manager(name_avd, vm_proxy=None, timezone='Europe/Paris', vm_port='5554'):
 	custom_config = (
 		' -no-snapshot-save'
-		f' -memory {memory}'
+		f' -memory {MEMORY_VM}'
 		' -netdelay none'
 		' -netspeed full'
 		f' -port {vm_port}'  # від 5554 до 5682
@@ -48,7 +47,7 @@ def vm_manager(name_avd, vm_proxy=None, timezone='Europe/Paris', vm_port='5554')
 	if vm_proxy:
 		custom_config += f" -http-proxy {vm_proxy}"
 
-	if no_window:
+	if NO_WINDOW_VM:
 		custom_config += ' -no-window'
 
 	create_param = {
