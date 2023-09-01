@@ -5,14 +5,18 @@ from appium.options.android import UiAutomator2Options
 from loguru import logger
 
 from mobile_reger.src.models.appium_automation.init_appium.app_capabilities import TELEGRAM_capabilities
-from mobile_reger.src.models.appium_automation.init_appium.param_virtual_machine import APPIUM_HOST, APPIUM_PORT
 
 
 class ServerRemote:
+    def __init__(self, appium_host, appium_port):
+        self.TG_DRIVER = None
+        self.APPIUM_HOST = appium_host
+        self.APPIUM_PORT = appium_port
+
     def __enter__(self):
         # add our capabilities in options
         tg_options = UiAutomator2Options().load_capabilities(TELEGRAM_capabilities)
-        self.TG_DRIVER = webdriver.Remote(f'http://{APPIUM_HOST}:{APPIUM_PORT}', options=tg_options)
+        self.TG_DRIVER = webdriver.Remote(f'http://{self.APPIUM_HOST}:{self.APPIUM_PORT}', options=tg_options)
 
         return self
 

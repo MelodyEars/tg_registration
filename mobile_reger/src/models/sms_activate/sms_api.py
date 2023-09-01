@@ -23,23 +23,32 @@ class InfoNumberPhone(TypedDict):
 
 
 # ______________________________________________________ API __________________________________________________________
-def buy_new_number() -> InfoNumberPhone:
-    #  TODO call this func, before create vm
+def buy_new_number(smsactivate_CodeContry: str | None = None,
+                   country_name: str | None = None,
+                   code_country: str | None = None,
+                   language: str | None = None,
+                   abbreviated_country: str | None = None
+                   ) -> InfoNumberPhone:
 
     service = 'tg'
     logger.info(f'Buying new number for {service}')
 
-    info_countries = {
-        0: ('Russia', '7', 'ru', 'RU'),
-        1: ('Ukraine', '380', 'uk', 'UA'),
-        2: ('Kazakhstan', '77', 'kk', 'KZ'),
-        11: ('Kyrgyzstan', '996', 'ky', 'KG'),
-        34: ('Estonia', '372', 'et', 'EE'),
-        35: ('Azerbaijan', '994', 'az', 'AZ'),
-        51: ('Belarus', '375', 'be', 'BY'),
-        85: ('Moldova', '373', 'ro', 'MD'),
-        148: ('Armenia', '374', 'hy', 'AM')
-    }
+    if not smsactivate_CodeContry:
+        info_countries = {
+            0: ('Russia', '7', 'ru', 'RU'),
+            1: ('Ukraine', '380', 'uk', 'UA'),
+            2: ('Kazakhstan', '77', 'kk', 'KZ'),
+            11: ('Kyrgyzstan', '996', 'ky', 'KG'),
+            34: ('Estonia', '372', 'et', 'EE'),
+            35: ('Azerbaijan', '994', 'az', 'AZ'),
+            51: ('Belarus', '375', 'be', 'BY'),
+            85: ('Moldova', '373', 'ro', 'MD'),
+            148: ('Armenia', '374', 'hy', 'AM')
+        }
+    else:
+        info_countries = {
+            smsactivate_CodeContry: (country_name, code_country, language, abbreviated_country)
+        }
 
     available_countries = list(info_countries.keys())
     logger.info(f"It's available countries: {available_countries}")

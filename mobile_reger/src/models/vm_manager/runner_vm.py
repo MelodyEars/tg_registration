@@ -1,7 +1,6 @@
 import contextlib
-import re
-import subprocess
 
+import pytz
 from loguru import logger
 
 from SETTINGS import MEMORY_VM, NO_WINDOW_VM
@@ -32,7 +31,13 @@ proxy = '-http-proxy ' + 'username:password@server:port'
 
 
 @contextlib.contextmanager
-def vm_manager(name_avd, vm_proxy=None, timezone='Europe/Paris', vm_port='5554'):
+def run_vm_manager(name_avd, vm_proxy=None, timezone='Europe/Paris', vm_port='5554'):
+	if not len(timezone) > 2:
+		timezone = pytz.country_timezones[timezone][0]
+		logger.debug(f"timezone: {timezone}")
+	else:
+		logger.debug('default, no select timezone')
+
 	custom_config = (
 		' -no-snapshot-save'
 		f' -memory {MEMORY_VM}'
@@ -74,9 +79,11 @@ def vm_manager(name_avd, vm_proxy=None, timezone='Europe/Paris', vm_port='5554')
 		logger.debug("done")
 
 
-if __name__ == '__main__':
-	with vm_manager('TEST_A') as port:
-		print(port)
-		input("Press Enter to exit")
-
-
+# if __name__ == '__main__':
+# 	timezone = 'ru'
+# 	if not len(timezone) > 2:
+# 		logger.debug(' > 2')
+# 		timezone = pytz.country_timezones[timezone][0]
+# 		print(timezone)
+# 	else:
+# 		print('default')
